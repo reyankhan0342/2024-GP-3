@@ -108,11 +108,6 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    init();
-  }
-
-  Future<void> init() async {
-    await savingFcmToken();
   }
 
   Future<void> savingFcmToken() async {
@@ -120,8 +115,8 @@ class _MyAppState extends State<MyApp> {
     await storeToken(token);
   }
 
-  final _firebaseInstance = FirebaseFirestore.instance.collection(
-      'FcmTokens'); // Replace 'FcmTokens' with your desired collection name
+  final _firebaseInstance = FirebaseFirestore.instance.collection('FcmTokens');
+  // to replace 'FcmTokens' with your desired collection name
 
   Future<void> storeToken(String token) async {
     try {

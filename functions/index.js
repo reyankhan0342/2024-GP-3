@@ -16,53 +16,51 @@ admin.initializeApp();
 const database = admin.firestore();
 
 // Function to send notification on content creation
-exports.sendDailyNotification = functions.pubsub.schedule('0 18 * * *') // Runs everyday at 11:00 AM
-    .timeZone('Asia/Karachi') // Set your timezone here
+exports.sendDailyNotification = functions.pubsub.schedule("* * * * *") // Runs every minute, for testing
     .onRun(async (context) => {
         try {
-            // Get current date
             const currentDate = new Date();
-            const month = currentDate.getMonth() + 1; // Months are 0-indexed, so adding 1
-            const day = currentDate.getDate();
-            const year = currentDate.getFullYear();
+            const hours = currentDate.getHours() + 3;
+            const minutes = currentDate.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+            const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+            const time = formattedHours + ':' + formattedMinutes + ' ' + ampm;
+            console.log("time ==> " + time);
+            console.log(" Starting  notification:",);
+            // Get current date and time
+            // const currentDate = new Date();
 
-            const currentDateString = `${month}/${day}/${year}`;
-            // Get all documents from the "RootreMessage" collection
-            const rootreMessageSnapshot = await database.collection("RootreMessage").get();
-            const messages = rootreMessageSnapshot.docs.map(doc => doc.data());
+            console.log("current date", currentDate.getDate() + "/" + (currentDate.getMonth() + 1) + "/" + currentDate.getFullYear());
 
-            // Filter messages for today's date
-            const todaysMessages = messages.filter(message => message.date === currentDateString);
-            console.log("todaysMessages", todaysMessages);
+            // Query Firestore for documents where the stored date and time match the current date and time
+            const querySnapshot = await database.collection("FcmTokens").where("date", "==", currentDate.getDate() + "/" + (currentDate.getMonth() + 1) + "/" + currentDate.getFullYear()).get();
+            console.log("querySnapshot");
+            console.log("Query Snapshot:", querySnapshot.docs.length);
 
-            if (todaysMessages.length === 0) {
-                console.log("No messages found for today's date:", currentDateString);
-                return null;
-            }
+            // Loop through the documents
+            querySnapshot.forEach(doc => {
+                const docData = doc.data();
+                // const docTime = new Date(docData.timestamp).getTime(); // Convert stored time to milliseconds
+                console.log("doc time", docData.timestamp);
+                console.log("current time", time);
 
-            // Fetch tokens from FcmTokens collection
-            const tokensSnapshot = await database.collection("FcmTokens").get();
+                if (docData.timestamp == time) {
+                    console.log(" sending daily notification:");
 
-            if (!tokensSnapshot.empty) {
-                const tokens = tokensSnapshot.docs.map(doc => doc.data().fcmT);
+                    // Send notification
+                    sendNotification(docData.fcmT, "electech", "it exceeds 3 houres ");
+                }
+            });
 
-                // Send notification for each message of today
-                todaysMessages.forEach(message => {
-                    tokens.forEach(token => {
-                        sendNotification(token, message.title, message.subtitle);
-                    });
-                });
 
-                console.log("Notifications sent for today's messages");
-            } else {
-                console.log("No tokens found to send notifications");
-            }
         } catch (error) {
             console.error("Error sending daily notification:", error);
         }
     });
 
 
+// Function to send notification
 // Function to send notification
 function sendNotification(androidNotificationToken, title, body) {
     const payload = {
@@ -74,16 +72,11 @@ function sendNotification(androidNotificationToken, title, body) {
         .messaging()
         .send(payload)
         .then(response => {
+            const currentDate = new Date();
+            console.log(`Notification Sent at: ${currentDate.toLocaleString()}`);
             console.log("Successful Notification Sent");
         })
         .catch(error => {
             console.error("Error Sending Notification:", error);
         });
 }
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
-
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
