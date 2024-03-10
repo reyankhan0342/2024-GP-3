@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -45,7 +47,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     stopwatch = Stopwatch();
-    t = Timer.periodic(Duration(microseconds: 30), (timer) {
+    t = Timer.periodic(const Duration(microseconds: 30), (timer) {
       setState(() {});
     });
   }
@@ -67,13 +69,13 @@ class _HomePageState extends State<HomePage> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: Color.fromARGB(255, 2, 129, 55),
+                      color: const Color.fromARGB(255, 2, 129, 55),
                       width: 4,
                     ),
                   ),
                   child: Text(
                     returnFormattedText(),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.black,
                       fontSize: 40,
                       fontWeight: FontWeight.bold,
@@ -81,18 +83,18 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CupertinoButton(
                     onPressed: startTimer,
-                    child: Text("ON"),
+                    child: const Text("ON"),
                   ),
-                  SizedBox(width: 15),
+                  const SizedBox(width: 15),
                   CupertinoButton(
                     onPressed: stopAndResetTimer,
-                    child: Text("OFF"),
+                    child: const Text("OFF"),
                   ),
                 ],
               ),
