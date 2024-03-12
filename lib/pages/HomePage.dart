@@ -33,9 +33,7 @@ class _HomePageState extends State<HomePage> {
 
   String returnFormattedText() {
     var milli = stopwatch.elapsed.inMilliseconds;
-    String milliseconds = (milli % 1000)
-        .toString()
-        .padLeft(2, "0"); // 1001 % 1000 = 1, 1450 % 1000 = 450
+    // 1001 % 1000 = 1, 1450 % 1000 = 450
     String seconds = ((milli ~/ 1000) % 60).toString().padLeft(2, "0");
     String minutes = ((milli ~/ 1000) ~/ 60).toString().padLeft(2, "0");
     String hours =
