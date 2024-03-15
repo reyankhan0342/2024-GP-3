@@ -1,4 +1,4 @@
-package com.example.electech
+package com.my.electech
 
 import io.flutter.embedding.android.FlutterActivity
 

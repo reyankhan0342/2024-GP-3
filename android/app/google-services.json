@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "329048355964",
+    "project_id": "electech-4cf87",
+    "storage_bucket": "electech-4cf87.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:329048355964:android:82c78b6b5b16ba469185f9",
+        "android_client_info": {
+          "package_name": "com.my.electech"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBudeYk9j5BRayO0_YlWYM-F1luOQ3ijoM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
