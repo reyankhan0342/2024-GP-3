@@ -37,8 +37,13 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   stop_watch_timer: ^3.1.1
-  firebase_core: 
   timer_stop_watch: ^1.0.0
+  cloud_firestore: 
+  firebase_messaging:
+  firebase_auth: 
+  firebase_core : 
+  firebase_storage: 
+  flutter_local_notifications: 
 
 dev_dependencies:
   flutter_test:

@@ -55,6 +55,14 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "electech",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Color.fromARGB(255, 2, 129, 55),
+        automaticallyImplyLeading: false,
+      ),
       body: SafeArea(
         child: Center(
           child: Column(
