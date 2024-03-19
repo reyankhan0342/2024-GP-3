@@ -98,11 +98,17 @@ class _HomePageState extends State<HomePage> {
                   CupertinoButton(
                     onPressed: startTimer,
                     child: const Text("ON"),
+                    color: Color.fromARGB(255, 45, 183, 77),
+                    minSize: 50,
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   ),
                   const SizedBox(width: 15),
                   CupertinoButton(
                     onPressed: stopAndResetTimer,
                     child: const Text("OFF"),
+                    color: Color.fromARGB(255, 45, 183, 77),
+                    minSize: 50,
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   ),
                 ],
               ),
