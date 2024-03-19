@@ -1,6 +1,10 @@
 import 'package:electech/pages/HomePage.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,11 +18,10 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
     SplashScreen();
   }
 
-  Future<void> SplashScreen() async {
+  void SplashScreen() async {
     await Future.delayed(Duration(seconds: 3));
 
     Navigator.push(
