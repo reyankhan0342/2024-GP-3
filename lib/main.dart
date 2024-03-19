@@ -11,8 +11,8 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 AndroidNotificationChannel? channel;
 
-// final DarwinInitializationSettings initializationSettingsIOS =
-//     DarwinInitializationSettings();
+final DarwinInitializationSettings initializationSettingsIOS =
+    DarwinInitializationSettings();
 FirebaseMessaging messaging = FirebaseMessaging.instance;
 
 Future<void> main() async {
