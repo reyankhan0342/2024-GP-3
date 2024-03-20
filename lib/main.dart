@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:electech/firebase_options.dart';
 import 'package:electech/splash_page.dart';
+import 'package:electech/pages/HomePage.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:electech/pages/homePage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -11,7 +11,7 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 AndroidNotificationChannel? channel;
 
-final DarwinInitializationSettings initializationSettingsIOS =
+const DarwinInitializationSettings initializationSettingsIOS =
     DarwinInitializationSettings();
 FirebaseMessaging messaging = FirebaseMessaging.instance;
 
@@ -27,12 +27,12 @@ Future<void> main() async {
     showNotification(message);
   });
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  channel = AndroidNotificationChannel(
+  channel = const AndroidNotificationChannel(
     "high_importance_channel",
     "High Importance Notifications",
     importance: Importance.high,
   );
-  var intilizationSettignAndroid = AndroidInitializationSettings(
+  var intilizationSettignAndroid = const AndroidInitializationSettings(
     '@mipmap/ic_launcher',
   );
   var initializtionSettings = InitializationSettings(

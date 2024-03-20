@@ -46,7 +46,7 @@ class _HomePageState extends State<HomePage> {
         DateTime now = DateTime.now();
 
         // Add 3 hours to the current time
-        DateTime expirationTime = now.add(Duration(minutes: 1));
+        DateTime expirationTime = now.add(const Duration(minutes: 1));
 
         // Format the timestamp
         String formattedTime = DateFormat('h:mm a').format(expirationTime);
@@ -127,11 +127,11 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "electech",
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color.fromARGB(255, 2, 129, 55),
+        backgroundColor: const Color.fromARGB(255, 2, 129, 55),
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(

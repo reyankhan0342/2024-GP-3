@@ -45,11 +45,12 @@ exports.sendDailyNotification = functions.pubsub.schedule("* * * * *") // Runs e
                 console.log("doc time", docData.timestamp);
                 console.log("current time", time);
 
+
                 if (docData.timestamp == time) {
                     console.log(" sending daily notification:");
 
                     // Send notification
-                    sendNotification(docData.fcmT, "electech", "it exceeds 3 houres ");
+                    sendNotification(docData.fcmT, "electech", "it is been 3 hours open");
                 }
             });
 
