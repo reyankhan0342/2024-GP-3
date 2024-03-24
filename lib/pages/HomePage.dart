@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
         DateTime now = DateTime.now();
 
         // Add 3 hours to the current time
-        DateTime expirationTime = now.add(const Duration(minutes: 1));
+        DateTime expirationTime = now.add(const Duration(minutes: 2));
 
         // Format the timestamp
         String formattedTime = DateFormat('h:mm a').format(expirationTime);

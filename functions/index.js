@@ -50,7 +50,7 @@ exports.sendDailyNotification = functions.pubsub.schedule("* * * * *") // Runs e
                     console.log(" sending daily notification:");
 
                     // Send notification
-                    sendNotification(docData.fcmT, "electech", "it is been 3 hours open");
+                    sendNotification(docData.fcmT, "electech", "it is been 1 hour open");
                 }
             });
 
