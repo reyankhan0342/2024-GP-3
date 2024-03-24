@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,7 +16,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late Stopwatch stopwatch;
   late Timer t;
+  bool clicked = false;
+  bool on1 = false;
+  bool on2 = false;
 
+  bool on3 = false;
   void startTimer() {
     stopwatch.start();
     savingFcmToken();
@@ -119,7 +123,9 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     stopwatch = Stopwatch();
     t = Timer.periodic(const Duration(microseconds: 30), (timer) {
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     });
   }
 
@@ -167,12 +173,24 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CupertinoButton(
-                    onPressed: startTimer,
+                    onPressed: () {
+                      clicked = true;
+                      on1 = true;
+                      startTimer();
+                      clicked ? sendRequest("1", "ON") : {};
+                      clicked ? sendRequest("2", "ON") : {};
+                    },
                     child: const Text("ON"),
                   ),
                   const SizedBox(width: 15),
                   CupertinoButton(
-                    onPressed: stopAndResetTimer,
+                    onPressed: () {
+                      clicked = true;
+                      on1 = false;
+                      stopAndResetTimer();
+                      clicked ? sendRequest("1", "OFF") : {};
+                      clicked ? sendRequest("2", "OFF") : {};
+                    },
                     child: const Text("OFF"),
                   ),
                 ],
@@ -182,5 +200,21 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  String sendingRequset(String relay, String status) {
+    String completeLink = 'http://192.168.254.169/cm?cmnd=Power$relay $status';
+    return completeLink;
+  }
+
+  sendRequest(String relay, String status) async {
+    String link = sendingRequset(relay, status);
+    final url = Uri.parse(link);
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      print("Success");
+    } else {
+      print("error");
+    }
   }
 }
