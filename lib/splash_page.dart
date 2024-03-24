@@ -22,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void SplashScreen() async {
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 5));
 
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => const HomePage()));
@@ -30,18 +30,22 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Center(
-            child: Text("electech",
-                style: TextStyle(
-                  fontSize: 25,
-                )),
-          ),
-        ],
+    return Scaffold(
+      body: Container(
+        color: Colors.white, // Set background color to white
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Center(
+              child: Image(
+                image: AssetImage('assets/logo.jpg'),
+                width: 200,
+                height: 200,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
