@@ -209,7 +209,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   String sendingRequset(String relay, String status) {
-    String completeLink = 'http://192.168.254.169/cm?cmnd=Power$relay $status';
+    String completeLink = 'http://192.168.254.137/cm?cmnd=Power$relay $status';
     return completeLink;
   }
 
