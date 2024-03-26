@@ -180,10 +180,10 @@ class _HomePageState extends State<HomePage> {
                       clicked ? sendRequest("1", "ON") : {};
                       clicked ? sendRequest("2", "ON") : {};
                     },
-                    child: const Text("ON"),
-                    color: Color.fromARGB(255, 45, 183, 77),
+                    color: const Color.fromARGB(255, 45, 183, 77),
                     minSize: 50,
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    child: const Text("ON"),
                   ),
                   const SizedBox(width: 15),
                   CupertinoButton(
@@ -194,10 +194,10 @@ class _HomePageState extends State<HomePage> {
                       clicked ? sendRequest("1", "OFF") : {};
                       clicked ? sendRequest("2", "OFF") : {};
                     },
-                    child: const Text("OFF"),
-                    color: Color.fromARGB(255, 45, 183, 77),
+                    color: const Color.fromARGB(255, 45, 183, 77),
                     minSize: 50,
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    child: const Text("OFF"),
                   ),
                 ],
               ),
