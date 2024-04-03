@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -7,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -19,6 +20,7 @@ class _HomePageState extends State<HomePage> {
   bool clicked = false;
   bool on1 = false;
   bool on2 = false;
+  var time = DateTime.now();
 
   bool on3 = false;
   void startTimer() {
@@ -31,8 +33,7 @@ class _HomePageState extends State<HomePage> {
     await storeToken(token);
   }
 
-  final _firebaseInstance = FirebaseFirestore.instance.collection(
-      'FcmTokens'); // Replace 'FcmTokens' with your desired collection name
+  final _firebaseInstance = FirebaseFirestore.instance.collection('FcmTokens');
 
   Future<void> storeToken(String token) async {
     try {
@@ -42,25 +43,18 @@ class _HomePageState extends State<HomePage> {
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        // Token already exists in Firestore
         print('Token already exists');
       } else {
-        // Token doesn't exist, save it with timestamp
         String randomId = _firebaseInstance.doc().id;
         DateTime now = DateTime.now();
-
-        // Add 3 hours to the current time
         DateTime expirationTime = now.add(const Duration(minutes: 2));
-
-        // Format the timestamp
         String formattedTime = DateFormat('h:mm a').format(expirationTime);
-        // Format the date
         String formattedDate = DateFormat('d/M/yyyy').format(expirationTime);
 
         await _firebaseInstance.doc(randomId).set({
           'fcmT': token,
-          'timestamp': formattedTime, // Store formatted time
-          'date': formattedDate, // Store formatted date
+          'timestamp': formattedTime,
+          'date': formattedDate,
         });
         print('Token stored successfully');
       }
@@ -80,7 +74,6 @@ class _HomePageState extends State<HomePage> {
   void stopAndResetTimer() async {
     stopTimer();
     await deleteToken();
-
     resetTimer();
   }
 
@@ -93,12 +86,10 @@ class _HomePageState extends State<HomePage> {
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        // Token exists in Firestore, delete it
         String documentId = querySnapshot.docs.first.id;
         await _firebaseInstance.doc(documentId).delete();
         print('Token deleted successfully');
       } else {
-        // Token not found in Firestore
         print('Token not found');
       }
     } catch (e) {
@@ -108,9 +99,6 @@ class _HomePageState extends State<HomePage> {
 
   String returnFormattedText() {
     var milli = stopwatch.elapsed.inMilliseconds;
-    String milliseconds = (milli % 1000)
-        .toString()
-        .padLeft(2, "0"); // 1001 % 1000 = 1, 1450 % 1000 = 450
     String seconds = ((milli ~/ 1000) % 60).toString().padLeft(2, "0");
     String minutes = ((milli ~/ 1000) ~/ 60).toString().padLeft(2, "0");
     String hours =
@@ -179,6 +167,9 @@ class _HomePageState extends State<HomePage> {
                       startTimer();
                       clicked ? sendRequest("1", "ON") : {};
                       clicked ? sendRequest("2", "ON") : {};
+
+                      // Save the current date to Firestore
+                      saveDateToFirestore();
                     },
                     child: const Text("ON"),
                     color: Color.fromARGB(255, 45, 183, 77),
@@ -201,6 +192,44 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
+              SizedBox(height: 15),
+              // StreamBuilder
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('FcmTokens')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    );
+                  }
+
+                  final fcmTokens = snapshot.data?.docs;
+
+                  if (fcmTokens == null || fcmTokens.isEmpty) {
+                    return Center(
+                      child: Text('No data available'),
+                    );
+                  }
+
+                  return Expanded(
+                    child: ListView.builder(
+                      itemCount: fcmTokens.length,
+                      itemBuilder: (context, index) {
+                        final fcmToken = fcmTokens[index];
+                        final date = fcmToken['date'];
+                        final timestamp = fcmToken['timestamp'];
+
+                        return ListTile(
+                          title: Text(date),
+                          subtitle: Text(timestamp),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -221,6 +250,22 @@ class _HomePageState extends State<HomePage> {
       print("Success");
     } else {
       print("error");
+    }
+  }
+
+  Future<void> saveDateToFirestore() async {
+    try {
+      DateTime now = DateTime.now();
+      String formattedTime = DateFormat('h:mm a').format(now);
+      String formattedDate = DateFormat('d/M/yyyy').format(now);
+
+      await _firebaseInstance.add({
+        'timestamp': formattedTime,
+        'date': formattedDate,
+      });
+      print('Date stored successfully');
+    } catch (e) {
+      print('Error storing date: $e');
     }
   }
 }
