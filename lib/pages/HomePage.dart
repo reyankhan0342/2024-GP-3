@@ -184,6 +184,9 @@ class _HomePageState extends State<HomePage> {
                       stopAndResetTimer();
                       clicked ? sendRequest("1", "OFF") : {};
                       clicked ? sendRequest("2", "OFF") : {};
+
+                      // Save the current date to Firestore
+                      saveDateToFirestore();
                     },
                     child: const Text("OFF"),
                     color: Color.fromARGB(255, 45, 183, 77),
