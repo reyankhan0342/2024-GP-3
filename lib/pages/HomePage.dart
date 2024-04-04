@@ -133,25 +133,28 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  height: 250,
-                  width: 250,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color.fromARGB(255, 2, 129, 55),
-                      width: 4,
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                    height: 250,
+                    width: 250,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color.fromARGB(255, 2, 129, 55),
+                        width: 4,
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    returnFormattedText(),
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
+                    child: Text(
+                      returnFormattedText(),
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -162,39 +165,30 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   CupertinoButton(
                     onPressed: () {
-                      clicked = true;
-                      on1 = true;
-                      startTimer();
-                      clicked ? sendRequest("1", "ON") : {};
-                      clicked ? sendRequest("2", "ON") : {};
-
-                      // Save the current date to Firestore with action 'ON'
-                      saveDateToFirestore('ON');
+                      setState(() {
+                        clicked = !clicked;
+                        on1 = !on1;
+                        if (clicked) {
+                          startTimer();
+                          sendRequest("1", "ON");
+                          sendRequest("2", "ON");
+                          saveDateToFirestore('ON');
+                        } else {
+                          stopAndResetTimer();
+                          sendRequest("1", "OFF");
+                          sendRequest("2", "OFF");
+                          saveDateToFirestore('OFF');
+                        }
+                      });
                     },
-                    child: const Text("ON"),
-                    color: Color.fromARGB(255, 45, 183, 77),
-                    minSize: 50,
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  ),
-                  const SizedBox(width: 15),
-                  CupertinoButton(
-                    onPressed: () {
-                      clicked = true;
-                      on1 = false;
-                      stopAndResetTimer();
-                      clicked ? sendRequest("1", "OFF") : {};
-                      clicked ? sendRequest("2", "OFF") : {};
-
-                      // Save the current date to Firestore with action 'OFF'
-                      saveDateToFirestore('OFF');
-                    },
-                    child: const Text("OFF"),
+                    child: Text(on1 ? "OFF" : "ON"),
                     color: Color.fromARGB(255, 45, 183, 77),
                     minSize: 50,
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   ),
                 ],
               ),
+
               SizedBox(height: 15),
               // DataTable
               StreamBuilder<QuerySnapshot>(
@@ -218,7 +212,7 @@ class _HomePageState extends State<HomePage> {
                       child: DataTable(
                         columns: [
                           DataColumn(label: Text('Date')),
-                          DataColumn(label: Text('Timestamp')),
+                          DataColumn(label: Text('Time')),
                           DataColumn(label: Text('Action')),
                         ],
                         rows: [], // Empty list of DataRow
@@ -257,7 +251,7 @@ class _HomePageState extends State<HomePage> {
                       child: DataTable(
                         columns: [
                           DataColumn(label: Text('Date')),
-                          DataColumn(label: Text('Timestamp')),
+                          DataColumn(label: Text('Time')),
                           DataColumn(label: Text('Action')),
                         ],
                         rows: filteredTokens.map((fcmToken) {
