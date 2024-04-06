@@ -14,8 +14,8 @@ class _HomePageState extends State<HomePage> {
   bool clicked = false;
   bool on1 = false;
   bool on2 = false;
-
-  late TimeOfDay _selectedTime; // New variable to hold selected time
+  late Stopwatch stopwatch;
+  late Timer t;
 
   @override
   Widget build(BuildContext context) {
@@ -119,12 +119,34 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  TimeOfDay _selectedTime = TimeOfDay.now(); // Initialize _selectedTime
+
+  @override
+  void initState() {
+    super.initState();
+    stopwatch = Stopwatch();
+    t = Timer.periodic(const Duration(microseconds: 30), (timer) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
   void startTimer() {
-    // Implement your timer logic here
+    stopwatch.start();
+  }
+
+  void stopTimer() {
+    stopwatch.stop();
+  }
+
+  void resetTimer() {
+    stopwatch.reset();
   }
 
   void stopAndResetTimer() {
-    // Implement your timer logic here
+    stopTimer();
+    resetTimer();
   }
 
   String sendingRequest(String relay, String status) {
