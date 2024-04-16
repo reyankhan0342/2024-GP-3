@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'SetTimePage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,8 +20,95 @@ class _HomePageState extends State<HomePage> {
   bool clicked = false;
   bool on1 = false;
   bool on2 = false;
-
   bool on3 = false;
+  late DateTime _scheduledTime;
+  bool _waterHeaterOn = false;
+
+  @override
+  void initializeState() {
+    super.initState();
+    stopwatch = Stopwatch();
+    t = Timer.periodic(const Duration(milliseconds: 30), (timer) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+    _scheduledTime = DateTime.now();
+    // Load scheduled time from Firestore
+    loadScheduledTime();
+  }
+
+  String returnFormattedText2() {
+    var milli = stopwatch.elapsedMilliseconds;
+    String milliseconds = (milli % 1000)
+        .toString()
+        .padLeft(2, "0"); // 1001 % 1000 = 1, 1450 % 1000 = 450
+    String seconds = ((milli ~/ 1000) % 60).toString().padLeft(2, "0");
+    String minutes = ((milli ~/ 1000) ~/ 60).toString().padLeft(2, "0");
+    String hours =
+        ((milli ~/ (1000 * 60 * 60)) % 24).toString().padLeft(2, "0");
+    return "$hours:$minutes:$seconds";
+  }
+
+  void _toggleWaterHeater() {
+    setState(() {
+      _waterHeaterOn = !_waterHeaterOn;
+      sendRequest(_waterHeaterOn ? "1" : "2", _waterHeaterOn ? "ON" : "OFF");
+    });
+  }
+
+  void _scheduleAction(BuildContext context) async {
+    final selectedTime = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SetTimePage(onTimeSelected: (time) {
+          setState(() {
+            _scheduledTime = time;
+          });
+          // Save scheduled time to Firestore
+          saveScheduledTime(time);
+        }),
+      ),
+    );
+    if (selectedTime != null) {
+      setState(() {
+        _scheduledTime = selectedTime;
+      });
+    }
+  }
+
+  void saveScheduledTime(DateTime scheduledTime) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('ScheduledTimes')
+          .doc(
+              'user_id') // Replace 'user_id' with the actual user ID or a unique identifier
+          .set({'scheduled_time': scheduledTime});
+      print('Scheduled time saved successfully');
+    } catch (e) {
+      print('Error saving scheduled time: $e');
+    }
+  }
+
+  void loadScheduledTime() async {
+    try {
+      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+          .collection('ScheduledTimes')
+          .doc(
+              'user_id') // Replace 'user_id' with the actual user ID or a unique identifier
+          .get();
+      if (documentSnapshot.exists) {
+        setState(() {
+          _scheduledTime = (documentSnapshot.data()
+                  as Map<String, dynamic>)['scheduled_time']
+              .toDate();
+        });
+      }
+    } catch (e) {
+      print('Error loading scheduled time: $e');
+    }
+  }
+
   void startTimer() {
     stopwatch.start();
     savingFcmToken();
@@ -182,7 +270,8 @@ class _HomePageState extends State<HomePage> {
                     },
                     color: const Color.fromARGB(255, 45, 183, 77),
                     minSize: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
                     child: const Text("ON"),
                   ),
                   const SizedBox(width: 15),
@@ -196,10 +285,16 @@ class _HomePageState extends State<HomePage> {
                     },
                     color: const Color.fromARGB(255, 45, 183, 77),
                     minSize: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
                     child: const Text("OFF"),
                   ),
                 ],
+              ),
+              SizedBox(height: 15),
+              ElevatedButton(
+                onPressed: () => _scheduleAction(context),
+                child: Text("Schedule Action"),
               ),
             ],
           ),
@@ -209,18 +304,22 @@ class _HomePageState extends State<HomePage> {
   }
 
   String sendingRequset(String relay, String status) {
-    String completeLink = 'http://192.168.254.137/cm?cmnd=Power$relay $status';
+    String completeLink = 'http://192.168.254.169/cm?cmnd=Power$relay $status';
     return completeLink;
   }
 
   sendRequest(String relay, String status) async {
-    String link = sendingRequset(relay, status);
-    final url = Uri.parse(link);
-    final response = await http.get(url);
-    if (response.statusCode == 200) {
-      print("Success");
-    } else {
-      print("error");
+    try {
+      String link = sendingRequset(relay, status);
+      final url = Uri.parse(link);
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        print("Success");
+      } else {
+        print("Error: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error: $e");
     }
   }
 }
