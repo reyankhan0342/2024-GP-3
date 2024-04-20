@@ -133,25 +133,28 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  height: 250,
-                  width: 250,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color.fromARGB(255, 2, 129, 55),
-                      width: 4,
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                    height: 250,
+                    width: 250,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color.fromARGB(255, 2, 129, 55),
+                        width: 4,
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    returnFormattedText(),
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
+                    child: Text(
+                      returnFormattedText(),
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -162,44 +165,38 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   CupertinoButton(
                     onPressed: () {
-                      clicked = true;
-                      on1 = true;
-                      startTimer();
-                      clicked ? sendRequest("1", "ON") : {};
-                      clicked ? sendRequest("2", "ON") : {};
-
-                      // Save the current date to Firestore
-                      saveDateToFirestore();
+                      setState(() {
+                        clicked = !clicked;
+                        on1 = !on1;
+                        if (clicked) {
+                          startTimer();
+                          sendRequest("1", "ON");
+                          sendRequest("2", "ON");
+                          saveDateToFirestore('ON');
+                        } else {
+                          stopAndResetTimer();
+                          sendRequest("1", "OFF");
+                          sendRequest("2", "OFF");
+                          saveDateToFirestore('OFF');
+                        }
+                      });
                     },
-                    child: const Text("ON"),
-                    color: Color.fromARGB(255, 45, 183, 77),
-                    minSize: 50,
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  ),
-                  const SizedBox(width: 15),
-                  CupertinoButton(
-                    onPressed: () {
-                      clicked = true;
-                      on1 = false;
-                      stopAndResetTimer();
-                      clicked ? sendRequest("1", "OFF") : {};
-                      clicked ? sendRequest("2", "OFF") : {};
-
-                      // Save the current date to Firestore
-                      saveDateToFirestore();
-                    },
-                    child: const Text("OFF"),
+                    child: Text(on1 ? "OFF" : "ON"),
                     color: Color.fromARGB(255, 45, 183, 77),
                     minSize: 50,
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   ),
                 ],
               ),
+
               SizedBox(height: 15),
-              // StreamBuilder
+              // DataTable
               StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('FcmTokens')
+                    .orderBy('timestamp',
+                        descending:
+                            true) // Order by timestamp in descending order
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
@@ -211,24 +208,70 @@ class _HomePageState extends State<HomePage> {
                   final fcmTokens = snapshot.data?.docs;
 
                   if (fcmTokens == null || fcmTokens.isEmpty) {
-                    return Center(
-                      child: Text('No data available'),
+                    return Expanded(
+                      child: DataTable(
+                        columns: [
+                          DataColumn(label: Text('Date')),
+                          DataColumn(label: Text('Time')),
+                          DataColumn(label: Text('Action')),
+                        ],
+                        rows: [], // Empty list of DataRow
+                      ),
                     );
                   }
 
-                  return Expanded(
-                    child: ListView.builder(
-                      itemCount: fcmTokens.length,
-                      itemBuilder: (context, index) {
-                        final fcmToken = fcmTokens[index];
-                        final date = fcmToken['date'];
-                        final timestamp = fcmToken['timestamp'];
+// Filter the documents to include only those with timestamp within the first hour
+                  //final filteredTokens = fcmTokens.where((token) {
+                  //final timestamp = token['timestamp'];
+                  //if (timestamp != null && timestamp is String) {
+                  //final time = DateFormat('h:mm a').parse(timestamp);
+                  // Check if the timestamp is within the first hour
+                  //return time.hour == DateTime.now().hour;
+                  //}
+                  //return false;
+                  //}).toList();
 
-                        return ListTile(
-                          title: Text(date),
-                          subtitle: Text(timestamp),
-                        );
-                      },
+                  final filteredTokens = fcmTokens.where((token) {
+                    final date = token['date'];
+                    if (date != null && date is String) {
+                      final parts = date.split('/');
+                      if (parts.length == 3) {
+                        final month = int.tryParse(parts[1]);
+                        // Check if the date is within the current month
+                        return month == DateTime.now().month;
+                      }
+                    }
+                    return false;
+                  }).toList();
+
+                  return Expanded(
+                    child: SingleChildScrollView(
+                      // Wrap DataTable with SingleChildScrollView
+                      scrollDirection: Axis.vertical,
+                      child: DataTable(
+                        columns: [
+                          DataColumn(label: Text('Date')),
+                          DataColumn(label: Text('Time')),
+                          DataColumn(label: Text('Action')),
+                        ],
+                        rows: filteredTokens.map((fcmToken) {
+                          final date = fcmToken['date'] ?? '';
+                          final timestamp = fcmToken['timestamp'] ?? '';
+                          final action =
+                              (fcmToken.data() as Map<String, dynamic>?)
+                                          ?.containsKey('action') ??
+                                      false
+                                  ? fcmToken['action']
+                                  : '';
+
+                          return DataRow(cells: [
+                            DataCell(Text(date)),
+                            DataCell(Text(timestamp)),
+                            DataCell(Text(
+                                action)), // Use empty string if action is not available
+                          ]);
+                        }).toList(),
+                      ),
                     ),
                   );
                 },
@@ -256,7 +299,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> saveDateToFirestore() async {
+  Future<void> saveDateToFirestore(String action) async {
     try {
       DateTime now = DateTime.now();
       String formattedTime = DateFormat('h:mm a').format(now);
@@ -265,6 +308,7 @@ class _HomePageState extends State<HomePage> {
       await _firebaseInstance.add({
         'timestamp': formattedTime,
         'date': formattedDate,
+        'action': action,
       });
       print('Date stored successfully');
     } catch (e) {
