@@ -233,12 +233,14 @@ class _HomePageState extends State<HomePage> {
                   // Rebuild the UI to reflect the change
                   setState(() {});
                 },
-                items: hoursOfDay.map((int hour) {
-                  return DropdownMenuItem<int>(
-                    value: hour,
-                    child: Text('$hour:00'),
-                  );
-                }).toList(),
+                items: hoursOfDay.map(
+                  (int hour) {
+                    return DropdownMenuItem<int>(
+                      value: hour,
+                      child: Text('$hour:00'),
+                    );
+                  },
+                ).toList(),
               ),
               SizedBox(height: 20.0),
             ],
