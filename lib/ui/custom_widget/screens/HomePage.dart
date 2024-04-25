@@ -1,4 +1,7 @@
+// ignore_for_file: prefer_const_constructors, unnecessary_string_interpolations, unnecessary_brace_in_string_interps, avoid_print, library_private_types_in_public_api
+
 import 'dart:async';
+import 'package:electech/core/services/notification_services.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -118,8 +121,10 @@ class _HomePageState extends State<HomePage> {
     return "$hours:$minutes:$seconds";
   }
 
+  NotificationServces servces = NotificationServces();
   @override
   void initState() {
+    servces.requestNotificationPermission();
     super.initState();
     stopwatch = Stopwatch();
     t = Timer.periodic(const Duration(microseconds: 30), (timer) {
@@ -129,8 +134,14 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  int selectedHour = 1; //
+  final List<int> hoursOfDay = List.generate(24, (index) => index + 1);
+
   @override
   Widget build(BuildContext context) {
+    DateTime now = DateTime.now();
+    String formattedDate = "${now.day}-${now.month}-${now.year}";
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -182,7 +193,8 @@ class _HomePageState extends State<HomePage> {
                     },
                     color: const Color.fromARGB(255, 45, 183, 77),
                     minSize: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
                     child: const Text("ON"),
                   ),
                   const SizedBox(width: 15),
@@ -196,11 +208,39 @@ class _HomePageState extends State<HomePage> {
                     },
                     color: const Color.fromARGB(255, 45, 183, 77),
                     minSize: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
                     child: const Text("OFF"),
                   ),
                 ],
               ),
+              SizedBox(
+                height: 18,
+              ),
+              Text(
+                '${formattedDate}',
+                style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w700),
+              ),
+              SizedBox(height: 10.0),
+              DropdownButton<int>(
+                value: selectedHour,
+                onChanged: (int? newValue) {
+                  // Update the selected hour when the user makes a selection
+                  selectedHour = newValue!;
+                  // Rebuild the UI to reflect the change
+                  setState(() {});
+                },
+                items: hoursOfDay.map((int hour) {
+                  return DropdownMenuItem<int>(
+                    value: hour,
+                    child: Text('$hour:00'),
+                  );
+                }).toList(),
+              ),
+              SizedBox(height: 20.0),
             ],
           ),
         ),

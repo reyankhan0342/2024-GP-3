@@ -1,4 +1,4 @@
-import 'package:electech/pages/HomePage.dart';
+import 'package:electech/ui/custom_widget/screens/HomePage.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
